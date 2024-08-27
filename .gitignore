@@ -1,5 +1,5 @@
 # environment variable
-/env
+env
 
 .vscode
 .gitignore
