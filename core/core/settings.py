@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders'
+    'corsheaders',
+    'api',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -50,7 +51,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+
+ 'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
+
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

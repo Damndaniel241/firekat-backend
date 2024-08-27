@@ -19,11 +19,24 @@ from django.urls import path,include
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts.api import router as accounts_router
+from ninja import NinjaAPI
+from rest_framework.schemas import get_schema_view
+from rest_framework.renderers import JSONOpenAPIRenderer
+
+schema_view = get_schema_view(
+    title="accounts",
+    renderer_classes=[JSONOpenAPIRenderer],
+)
+
+# api = NinjaAPI()
+# api.add_router("api/", accounts_router)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/',include('accounts.urls')),
     path('api/token/', ObtainAuthToken.as_view()),
+    path('api/',include('api.urls')),
 ]
 
 
