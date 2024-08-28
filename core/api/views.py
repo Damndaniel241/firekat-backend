@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
+from rest_framework import viewsets
+from .models.topics import Topic
+from .serializers import TopicSerializer
 
-# Create your views here.
-class getUserView(APIView):
-    def get(self,request):
-        pass
+class TopicViewSet(viewsets.ModelViewSet):
+    queryset = Topic.objects.all()
+    serializer_class = TopicSerializer
