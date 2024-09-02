@@ -1,6 +1,7 @@
 from django.db import models
 from .subjects import Subject
 from accounts.models import CustomUser
+from .faculties import Faculty
 from django.utils import  timezone
 
 from autoslug import AutoSlugField
@@ -11,8 +12,19 @@ class Topic(models.Model):
     slug = AutoSlugField(populate_from='title',null=False, unique=True,default=None)
     content = models.TextField(blank=True)
     posted_at = models.DateTimeField(default=timezone.now)
-    subject = models.ForeignKey(Subject,on_delete=models.CASCADE, related_name='topics')
+    subject = models.ForeignKey(Subject,on_delete=models.CASCADE,blank=True,null=True, related_name='topics')
     author = models.ForeignKey(CustomUser,on_delete=models.SET_NULL,null=True, related_name="owned_topics")
+    faculty = models.ForeignKey(Faculty, on_delete=models.SET_NULL, null=True, blank=True, related_name="topics")
+
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.subject and not self.faculty:
+            raise ValidationError('A topic must be associated with either a Subject or a Faculty.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 

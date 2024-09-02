@@ -16,7 +16,7 @@ class Comment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.username}'s comment in {self.topic.title}"
+        return f"{self.user.username}'s comment in '{self.topic.title}'"
 
 
 class CommentImage(models.Model):
