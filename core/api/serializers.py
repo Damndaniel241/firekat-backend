@@ -6,12 +6,16 @@ from .models.faculties import Faculty
 from accounts.models import CustomUser
 from accounts.serializers import CustomUserSerializer
 
+
 class TopicSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
+    comment_count = serializers.SerializerMethodField()
     class Meta:
         model = Topic
         fields = '__all__'
 
+    def get_comment_count(self, obj):
+        return obj.posts.count()
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -19,6 +23,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FacultySerializer(serializers.ModelSerializer):
+    # user = CustomUserSerializer(read_only=True)
+
     class Meta:
         model = Faculty
         fields = '__all__'

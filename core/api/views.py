@@ -62,4 +62,12 @@ class FacultyViewSet(viewsets.ModelViewSet):
         serializer = SubjectSerializer(subjects, many=True)
         return Response(serializer.data)
     
+
+    @action(detail=True, methods=['get'])
+    def topics(self, request, pk=None):
+        faculty = self.get_object()
+        topics = faculty.topics.all()  # related_name='topics' is used here
+        serializer = TopicSerializer(topics, many=True)
+        return Response(serializer.data)
+    
    
