@@ -1,11 +1,13 @@
 from django.db import models
 from .topics import Topic
 from accounts.models import CustomUser
+from django.utils import  timezone
 
 class Comment(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.SET_NULL,null=True,related_name="posted_replies")
     content = models.TextField(blank=True)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
+    posted_at = models.DateTimeField(default=timezone.now)
     quoted_comment = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_comments')
     quoted_topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_comments')
     

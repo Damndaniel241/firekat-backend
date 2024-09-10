@@ -29,7 +29,7 @@ class Topic(models.Model):
 
 
     def __str__(self):
-        return self.title
+        return f"{self.title} - {self.subject if self.subject else self.faculty}"
 
 class TopicImage(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_images')

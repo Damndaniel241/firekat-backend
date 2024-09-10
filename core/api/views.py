@@ -10,16 +10,26 @@ from .models.faculties import Faculty
 from .serializers import *
 
 class TopicViewSet(viewsets.ModelViewSet):
-    queryset = Topic.objects.all()
+    queryset = Topic.objects.all().order_by('-posted_at')
     serializer_class = TopicSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
-    def get_permissions(self):
-        if self.action in ['list','retrieve']:
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+
+    # def get_permissions(self):
+    #     if self.action in ['list','retrieve']:
+    #         permission_classes = [AllowAny]
+    #     else:
+    #         permission_classes = [IsAuthenticated]
+    #     return [permission() for permission in permission_classes]
+    
+    @action(detail=True, methods=['get'])
+    def comments(self, request, pk=None):
+        topic = self.get_object()
+        comments = topic.posts.all()  # related_name='subjects' used here
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+    
+    
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
@@ -71,3 +81,30 @@ class FacultyViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
    
+
+class CountTopicsView(APIView):
+    # authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self,request):
+        topic_count = Topic.objects.count()
+        return Response(topic_count)
+
+
+    
+# from collections import deque
+
+# def bfs(graph, start):
+#     visited = set()
+#     q = deque([start])
+#     visited.add(start)
+
+
+#     while q:
+#         v= q.popleft()
+#         print(v)
+
+#         for u in graph[v]:
+#             if u not in visited:
+#                 visited.add(u)
+#                 q.append(u)

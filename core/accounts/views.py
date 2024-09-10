@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status,viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login,logout
 from .models import CustomUser
@@ -65,6 +66,16 @@ class GetUserDetailsView(APIView):
     def get(self, request):
         serializer = CustomUserSerializer(request.user)
         return Response(serializer.data)
+
+
+
+class CountUsersView(APIView):
+    # authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self,request):
+        user_count = CustomUser.objects.count()
+        return Response(user_count)
 
 
 

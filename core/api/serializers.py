@@ -7,19 +7,31 @@ from accounts.models import CustomUser
 from accounts.serializers import CustomUserSerializer
 
 
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(read_only=True)
+    class Meta:
+        model = Comment
+        fields = '__all__'
 class TopicSerializer(serializers.ModelSerializer):
-    author = CustomUserSerializer(read_only=True)
+    # author = CustomUserSerializer(read_only=True)
+    author = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     comment_count = serializers.SerializerMethodField()
+    comments = [CommentSerializer(read_only=True)]
     class Meta:
         model = Topic
         fields = '__all__'
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Replace the author ID with the full author object
+        representation['author'] = CustomUserSerializer(instance.author).data
+        return representation
+    
     def get_comment_count(self, obj):
         return obj.posts.count()
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = '__all__'
+
 
 
 class FacultySerializer(serializers.ModelSerializer):
