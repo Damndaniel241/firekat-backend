@@ -9,7 +9,7 @@ class Comment(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
     posted_at = models.DateTimeField(default=timezone.now)
     quoted_comment = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_comments')
-    quoted_topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_comments')
+    quoted_topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_topics')
     
     def save(self, *args, **kwargs):
     # Ensure that either quoted_comment or quoted_topic is set, but not both
@@ -18,7 +18,7 @@ class Comment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.username}'s comment in '{self.topic.title}'"
+        return f"{self.user}'s comment in '{self.topic.title}'"
 
 
 class CommentImage(models.Model):

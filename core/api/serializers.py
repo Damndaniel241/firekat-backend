@@ -11,14 +11,30 @@ from accounts.serializers import CustomUserSerializer
 
 class CommentSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
+    # quoted_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all)
+
+
     class Meta:
         model = Comment
         fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.quoted_comment:
+            # Use CommentSerializer to represent the quoted comment instead of just the ID
+            representation['quoted_comment'] = CommentSerializer(instance.quoted_comment).data
+        else:
+            representation['quoted_comment'] = None
+
+        return representation
+
+
 class TopicSerializer(serializers.ModelSerializer):
     # author = CustomUserSerializer(read_only=True)
     author = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     comment_count = serializers.SerializerMethodField()
     comments = [CommentSerializer(read_only=True)]
+
     class Meta:
         model = Topic
         fields = '__all__'

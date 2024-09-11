@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,AllowAny
@@ -29,6 +29,18 @@ class TopicViewSet(viewsets.ModelViewSet):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
     
+
+    @action(detail=True, methods=['get'], url_path='comments/(?P<comment_pk>[^/.]+)')
+    def comment(self, request, pk=None, comment_pk=None):
+        topic = self.get_object()
+        try:
+            comment = topic.posts.get(pk=comment_pk)  # Assuming related_name='posts'
+            serializer = CommentSerializer(comment)
+            return Response(serializer.data)
+        except Comment.DoesNotExist:
+            return Response({'error': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    
     
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -41,6 +53,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+    
+    def perform_create(self, serializer):
+        # Associate the authenticated user with the comment
+        serializer.save(user=self.request.user)
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
