@@ -52,7 +52,7 @@ class getUserDetail(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @action(detail=False, methods=['get'])
     def me(self, request):
@@ -67,6 +67,18 @@ class GetUserDetailsView(APIView):
         serializer = CustomUserSerializer(request.user)
         return Response(serializer.data)
 
+
+class GetUserIdFromName(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self,request,username):
+        user = CustomUser.objects.filter(username=username).values('id').first()
+        if user:
+            user_id  = user['id']
+        else:
+            user_id = None
+        
+        return Response(str(user_id))
 
 
 class CountUsersView(APIView):

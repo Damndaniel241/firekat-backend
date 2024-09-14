@@ -12,7 +12,7 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('logout/', LogoutView.as_view()),
     # path('user/<id>', getUserDetail.as_view()),
-    
+    path('users/user/<str:username>/',GetUserIdFromName.as_view()),
     path('users/me/', GetUserDetailsView.as_view()),
     path('users/all/', CountUsersView.as_view()),
     path('', include(router.urls)),
