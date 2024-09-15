@@ -3,7 +3,7 @@ from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,AllowAny
-from .models.topics import Topic
+from .models.topics import Topic,TopicImage
 from .models.comments import Comment
 from .models.subjects import Subject
 from .models.faculties import Faculty
@@ -15,6 +15,17 @@ class TopicViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    # def perform_create(self, serializer):
+    #     serializer.save()
+
+    
     # def get_permissions(self):
     #     if self.action in ['list','retrieve']:
     #         permission_classes = [AllowAny]
@@ -39,6 +50,23 @@ class TopicViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Comment.DoesNotExist:
             return Response({'error': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+    # @action(detail=True, methods=['post'], url_path='upload-images')
+    # def upload_images(self, request, pk=None):
+    #     topic = self.get_object()
+        
+    #     # Check if there are any files in the request
+    #     if 'images' not in request.FILES:
+    #         return Response({'error': 'No images provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    #     images = request.FILES.getlist('images')
+
+    #     # Save each image to the TopicImage model
+    #     for image in images:
+    #         TopicImage.objects.create(topic=topic, image=image)
+
+    #     return Response({'message': 'Images uploaded successfully'}, status=status.HTTP_200_OK)
 
     
     
