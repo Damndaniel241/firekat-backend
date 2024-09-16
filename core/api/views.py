@@ -3,7 +3,7 @@ from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,AllowAny
-from .models.topics import Topic,TopicImage
+from .models.topics import Topic
 from .models.comments import Comment
 from .models.subjects import Subject
 from .models.faculties import Faculty
@@ -50,7 +50,24 @@ class TopicViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Comment.DoesNotExist:
             return Response({'error': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
+    def create(self, request, *args, **kwargs):
+        print(request.FILES)
+        topic_data = request.data
+        topic_serializer = TopicSerializer(data=topic_data)
+
+        if topic_serializer.is_valid():
+            topic = topic_serializer.save()
+
+            for file_key in ['iamge_1','image_2','image_3','image_4']:
+                if file_key in request.FILES:
+                    setattr(topic,file_key,request.FILES[file_key])
+
+            topic.save()
+
+           
+            return Response(topic_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(topic_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
     # @action(detail=True, methods=['post'], url_path='upload-images')
     # def upload_images(self, request, pk=None):

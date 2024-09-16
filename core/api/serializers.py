@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models.topics import Topic,TopicImage
+from .models.topics import Topic
 from .models.comments import Comment
 from .models.subjects import Subject
 from .models.faculties import Faculty
@@ -28,10 +28,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
         return representation
 
-class TopicImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TopicImage
-        fields = ('image',)
+# class TopicImageSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = TopicImage
+#         fields = ('image',)
 
 class TopicSerializer(serializers.ModelSerializer):
     # author = CustomUserSerializer(read_only=True)
@@ -70,6 +70,7 @@ class TopicSerializer(serializers.ModelSerializer):
     
     def get_comment_count(self, obj):
         return obj.posts.count()
+
 
 
 

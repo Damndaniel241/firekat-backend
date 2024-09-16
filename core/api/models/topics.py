@@ -15,6 +15,11 @@ class Topic(models.Model):
     subject = models.ForeignKey(Subject,on_delete=models.CASCADE,blank=True,null=True, related_name='topics')
     author = models.ForeignKey(CustomUser,on_delete=models.SET_NULL,null=True, related_name="owned_topics")
     faculty = models.ForeignKey(Faculty, on_delete=models.SET_NULL, null=True, blank=True, related_name="topics")
+    image_1 = models.ImageField(upload_to='post_images/', null=True, blank=True)
+    image_2 = models.ImageField(upload_to='post_images/', null=True, blank=True)
+    image_3 = models.ImageField(upload_to='post_images/', null=True, blank=True)
+    image_4 = models.ImageField(upload_to='post_images/', null=True, blank=True)
+    
 
 
     def clean(self):
@@ -31,6 +36,6 @@ class Topic(models.Model):
     def __str__(self):
         return f"{self.title} - {self.subject if self.subject else self.faculty}"
 
-class TopicImage(models.Model):
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_images')
-    image = models.ImageField(upload_to='post_images/', null=True, blank=True)
+# class TopicImage(models.Model):
+#     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_images')
+#     image = models.ImageField(upload_to='post_images/', null=True, blank=True)
