@@ -8,6 +8,9 @@ from .models.comments import Comment
 from .models.subjects import Subject
 from .models.faculties import Faculty
 from .serializers import *
+import json
+import base64
+from django.core.files.base import ContentFile
 
 class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all().order_by('-posted_at')
@@ -15,15 +18,6 @@ class TopicViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    # def perform_create(self, serializer):
-    #     serializer.save()
 
     
     # def get_permissions(self):
@@ -68,25 +62,57 @@ class TopicViewSet(viewsets.ModelViewSet):
            
             return Response(topic_serializer.data, status=status.HTTP_201_CREATED)
         return Response(topic_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-    # @action(detail=True, methods=['post'], url_path='upload-images')
-    # def upload_images(self, request, pk=None):
-    #     topic = self.get_object()
-        
-    #     # Check if there are any files in the request
-    #     if 'images' not in request.FILES:
-    #         return Response({'error': 'No images provided'}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     images = request.FILES.getlist('images')
-
-    #     # Save each image to the TopicImage model
-    #     for image in images:
-    #         TopicImage.objects.create(topic=topic, image=image)
-
-    #     return Response({'message': 'Images uploaded successfully'}, status=status.HTTP_200_OK)
-
     
-    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        
+       
+
+        try:
+            removed_images = json.loads(data.get('removed_images', '[]'))
+            if not isinstance(removed_images, list):
+                removed_images = []
+        except json.JSONDecodeError:
+            removed_images = []
+
+        print("Removing images:", removed_images)
+        for image_field in removed_images:
+            if hasattr(instance, image_field):
+                image = getattr(instance, image_field)
+                if image:
+                    image.delete(save=False)
+                    setattr(instance, image_field, None)
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        for i in range(1, 5):
+            file_key = f'image_{i}'
+            existing_key = f'existing_image_{i}'
+            if file_key in request.FILES:
+                print(f"Updating {file_key}")
+                setattr(instance, file_key, request.FILES[file_key])
+            elif existing_key in data:
+                print(f"Keeping existing {file_key}")
+                # Do nothing, keep the existing image
+            elif file_key not in removed_images:
+                print(f"Clearing {file_key}")
+                setattr(instance, file_key, None)
+        # # Handle file uploads for the new images
+        # for file_key in ['image_1', 'image_2', 'image_3', 'image_4']:
+        #     if file_key in request.FILES:
+        #         # Save the new uploaded image
+        #         setattr(instance, file_key, request.FILES[file_key])
+
+        instance.save()
+
+        return Response(serializer.data)
+
+
+  
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()

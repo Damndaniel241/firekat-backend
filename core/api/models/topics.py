@@ -26,6 +26,12 @@ class Topic(models.Model):
         from django.core.exceptions import ValidationError
         if not self.subject and not self.faculty:
             raise ValidationError('A topic must be associated with either a Subject or a Faculty.')
+        
+    def delete_image(self, image_field):
+        image = getattr(self, image_field)
+        if image:
+            image.delete(save=False)
+            setattr(self, image_field, None)
 
     def save(self, *args, **kwargs):
         self.full_clean()
