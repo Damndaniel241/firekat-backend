@@ -7,10 +7,12 @@ from .models.topics import Topic
 from .models.comments import Comment
 from .models.subjects import Subject
 from .models.faculties import Faculty
+from .models.likes import Like
 from .serializers import *
 import json
 import base64
 from django.core.files.base import ContentFile
+from django.db import IntegrityError
 
 class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all().order_by('-posted_at')
@@ -44,6 +46,9 @@ class TopicViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Comment.DoesNotExist:
             return Response({'error': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    
+
 
     def create(self, request, *args, **kwargs):
         print(request.FILES)
@@ -53,7 +58,7 @@ class TopicViewSet(viewsets.ModelViewSet):
         if topic_serializer.is_valid():
             topic = topic_serializer.save()
 
-            for file_key in ['iamge_1','image_2','image_3','image_4']:
+            for file_key in ['image_1','image_2','image_3','image_4']:
                 if file_key in request.FILES:
                     setattr(topic,file_key,request.FILES[file_key])
 
@@ -101,17 +106,35 @@ class TopicViewSet(viewsets.ModelViewSet):
             elif file_key not in removed_images:
                 print(f"Clearing {file_key}")
                 setattr(instance, file_key, None)
-        # # Handle file uploads for the new images
-        # for file_key in ['image_1', 'image_2', 'image_3', 'image_4']:
-        #     if file_key in request.FILES:
-        #         # Save the new uploaded image
-        #         setattr(instance, file_key, request.FILES[file_key])
+
 
         instance.save()
 
         return Response(serializer.data)
 
+class LikeView(APIView):
+    def post(self,request,id):
+        user = request.user
+        topic = Topic.objects.get(pk=id)
+        liked= request.data.get('liked')
 
+        # Check if the Like already exists for this user and topic
+        try:
+            like_instance = Like.objects.get(user=user,topic=topic)
+            # If it exists, update the 'liked' status
+            like_instance.liked = liked
+            like_instance.save()
+            return Response({'message':'Like updated successfully'},status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            # If it doesn't exist, create a new like
+            like_serializer = LikeSerializer(data=request.data)
+            if like_serializer.is_valid():
+                like_serializer.save(user=user,topic=topic)
+                return Response(like_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(like_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+            # like.save()
   
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -129,6 +152,23 @@ class CommentViewSet(viewsets.ModelViewSet):
         # Associate the authenticated user with the comment
         serializer.save(user=self.request.user)
 
+    # def create(self, request, *args, **kwargs):
+    #     print(request.FILES)
+    #     comment_data = request.data
+    #     comment_serializer = CommentSerializer(data=comment_data)
+
+    #     if comment_serializer.is_valid():
+    #         comment = comment_serializer.save()
+
+    #         for file_key in ['image_1','image_2','image_3','image_4']:
+    #             if file_key in request.FILES:
+    #                 setattr(comment,file_key,request.FILES[file_key])
+
+    #         comment.save()
+
+           
+        #     return Response(comment_serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(comment_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer

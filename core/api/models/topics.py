@@ -20,6 +20,7 @@ class Topic(models.Model):
     image_3 = models.ImageField(upload_to='post_images/', null=True, blank=True)
     image_4 = models.ImageField(upload_to='post_images/', null=True, blank=True)
     
+    
 
 
     def clean(self):

@@ -10,6 +10,11 @@ class Comment(models.Model):
     posted_at = models.DateTimeField(default=timezone.now)
     quoted_comment = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_comments')
     quoted_topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, blank=True, related_name='quoting_topics')
+    # image_1 = models.ImageField(upload_to='post_comments/',null=True, blank=True)
+    # image_2 = models.ImageField(upload_to='post_comments/',null=True, blank=True)
+    # image_3 = models.ImageField(upload_to='post_comments/',null=True, blank=True)
+    # image_4 = models.ImageField(upload_to='post_comments/',null=True, blank=True)
+    
     
     def save(self, *args, **kwargs):
     # Ensure that either quoted_comment or quoted_topic is set, but not both

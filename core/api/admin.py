@@ -5,6 +5,7 @@ from .models.faculties import Faculty
 from .models.subjects import Subject
 from .models.comments import Comment
 from .models.topics import Topic
+from .models.likes import Like
 
 
 
@@ -17,6 +18,7 @@ admin.site.register(Faculty)
 admin.site.register(Subject)
 admin.site.register(Comment)
 admin.site.register(Topic)
+admin.site.register(Like)
 
 
   

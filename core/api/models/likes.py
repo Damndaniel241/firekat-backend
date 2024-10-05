@@ -1,0 +1,12 @@
+from django.db import models
+from .topics import Topic
+from accounts.models import CustomUser
+
+
+class Like(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.SET_NULL,null=True,related_name="liked_posts")
+    topic = models.ForeignKey(Topic, null=True, on_delete=models.CASCADE, related_name='likes')
+    liked = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user} liked {self.topic.title}"
