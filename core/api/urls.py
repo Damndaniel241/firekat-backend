@@ -9,7 +9,7 @@ router.register(r'subjects', SubjectViewSet)
 router.register(r'faculties', FacultyViewSet)
 urlpatterns = [
     path('topics/all/',CountTopicsView.as_view()),
-    path('topics/like/<int:id>/', LikeView.as_view()),
+    # path('topics/like/<int:id>/', LikeView.as_view()),
     path('',include(router.urls)),
     
 ]

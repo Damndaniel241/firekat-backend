@@ -42,6 +42,7 @@ class TopicSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     comment_count = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
+   
 
     comments = [CommentSerializer(read_only=True)]
    
@@ -54,13 +55,24 @@ class TopicSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         # Replace the author ID with the full author object
         representation['author'] = CustomUserSerializer(instance.author).data
+
+        request = self.context.get('request')
+    
+    # Only include 'like_status' if the user is authenticated
+        if request and not request.user.is_authenticated:
+            representation.pop('like_status', None)
         return representation
     
     def get_comment_count(self, obj):
         return obj.posts.count()
 
     def get_like_count(self, obj):
-        return obj.likes.count()
+        queryset = obj.likes.filter(liked=True)
+        user_liked_list_count = len(list(queryset))
+        return user_liked_list_count
+    
+
+
 
 
 

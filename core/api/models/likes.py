@@ -9,4 +9,7 @@ class Like(models.Model):
     liked = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user} liked {self.topic.title}"
+        if self.liked:
+            return f"{self.user} liked {self.topic.title}"
+        else:
+            return f"{self.user} unliked {self.topic.title}"
