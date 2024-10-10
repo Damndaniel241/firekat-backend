@@ -1,5 +1,6 @@
 from django.db import models
 from .topics import Topic
+from .comments import Comment
 from accounts.models import CustomUser
 
 
@@ -12,4 +13,7 @@ class Like(models.Model):
         if self.liked:
             return f"{self.user} liked {self.topic.title}"
         else:
-            return f"{self.user} unliked {self.topic.title}"
+            return f"{self.user} unliked {self.topic.title}" 
+        
+
+      

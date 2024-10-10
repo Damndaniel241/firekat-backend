@@ -5,6 +5,7 @@ from .models.subjects import Subject
 from .models.faculties import Faculty
 from accounts.models import CustomUser
 from .models.likes import Like
+from .models.commentlikes import CommentLike
 from accounts.serializers import CustomUserSerializer
 
 
@@ -13,11 +14,16 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = '__all__'
-    # user 
+    
+class CommentLikeSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = CommentLike
+        fields = '__all__'
 
 class CommentSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
+    comment_like_count = serializers.SerializerMethodField() 
     # quoted_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all)
 
 
@@ -34,6 +40,11 @@ class CommentSerializer(serializers.ModelSerializer):
             representation['quoted_comment'] = None
 
         return representation
+    
+    def get_comment_like_count(self,obj):
+        queryset = obj.comment_likes.filter(liked=True)
+        user_liked_list_count = len(list(queryset))
+        return user_liked_list_count
 
 
 
@@ -56,11 +67,11 @@ class TopicSerializer(serializers.ModelSerializer):
         # Replace the author ID with the full author object
         representation['author'] = CustomUserSerializer(instance.author).data
 
-        request = self.context.get('request')
+    #     request = self.context.get('request')
     
-    # Only include 'like_status' if the user is authenticated
-        if request and not request.user.is_authenticated:
-            representation.pop('like_status', None)
+    # # Only include 'like_status' if the user is authenticated
+    #     if request and not request.user.is_authenticated:
+    #         representation.pop('like_status', None)
         return representation
     
     def get_comment_count(self, obj):

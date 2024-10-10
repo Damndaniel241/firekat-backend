@@ -8,6 +8,7 @@ from .models.comments import Comment
 from .models.subjects import Subject
 from .models.faculties import Faculty
 from .models.likes import Like
+from .models.commentlikes import CommentLike
 from .serializers import *
 import json
 import base64
@@ -189,6 +190,41 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Associate the authenticated user with the comment
         serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def get_comment_like_status(self, request,pk=None, ):
+        user= request.user
+        comment= self.get_object()
+        try:
+            like_instance = CommentLike.objects.get(user=user,comment=comment)
+            return Response({'status':'success','comment_like_status':like_instance.liked},status=status.HTTP_200_OK)
+        except CommentLike.DoesNotExist:
+             return Response({
+                'status': 'failure. No like exists',
+                'Comment_like_status': False  # Assuming False when no Like instance is found
+            }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def like_comment(self, request, pk=None):
+        user = request.user
+        comment = self.get_object()
+        liked = request.data.get('liked')
+
+        # Check if the Like already exists for this user and comment
+        try:
+            like_instance = CommentLike.objects.get(user=user, comment=comment)
+            # If it exists, update the 'liked' status
+            like_instance.liked = liked
+            like_instance.save()
+            return Response({'message': 'Comment Like updated successfully'}, status=status.HTTP_200_OK)
+        except CommentLike.DoesNotExist:
+            # If it doesn't exist, create a new like
+            like_serializer = CommentLikeSerializer(data=request.data)
+            if like_serializer.is_valid():
+                like_serializer.save(user=user, comment=comment)
+                return Response(like_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(like_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
