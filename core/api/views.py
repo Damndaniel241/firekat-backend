@@ -229,13 +229,22 @@ class CommentViewSet(viewsets.ModelViewSet):
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer
+    permission_classes = [AllowAny]
 
-    def get_permissions(self):
-        if self.action in ['list','retrieve']:
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+    # def get_permissions(self):
+    #     if self.action in ['list','retrieve']:
+    #         permission_classes = [AllowAny]
+    #     else:
+    #         permission_classes = [IsAuthenticated]
+    #     return [permission() for permission in permission_classes]
+    
+    @action(detail=True, methods=["get"])
+    def topics(self,request,pk=None):
+        subject = self.get_object()
+        topics = subject.subject_topics.all()
+        serializer = TopicSerializer(topics,many=True)
+        return Response(serializer.data)
+        
 
 class FacultyViewSet(viewsets.ModelViewSet):
     queryset = Faculty.objects.all()
@@ -260,7 +269,7 @@ class FacultyViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def topics(self, request, pk=None):
         faculty = self.get_object()
-        topics = faculty.topics.all()  # related_name='topics' is used here
+        topics = faculty.faculty_topics.all()  # related_name='topics' is used here
         serializer = TopicSerializer(topics, many=True)
         return Response(serializer.data)
     
