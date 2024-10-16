@@ -7,7 +7,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login,logout
 from .models import CustomUser
-from .serializers import RegisterSerializer,LoginSerializer,CustomUserSerializer
+from .serializers import RegisterSerializer,LoginSerializer,CustomUserSerializer,UserProfileSerializer
 
 
 class RegisterView(APIView):
@@ -92,7 +92,18 @@ class CountUsersView(APIView):
 
 
 
-
+class UpdateUserProfile(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, format=None):
+        data = request.data
+        serialized_data = UserProfileSerializer(data=data)
+        if serialized_data.is_valid():
+            serialized_data.save()
+            return Response({"message:user profile updated successfully"},status=status.HTTP_200_OK)  
+        return Response(serialized_data.errors,status=status.HTTP_400_BAD_REQUEST)  
+    
+        
 
 
 
