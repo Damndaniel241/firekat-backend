@@ -282,6 +282,26 @@ class CountTopicsView(APIView):
     def get(self,request):
         topic_count = Topic.objects.count()
         return Response(topic_count)
+    
+    
+class GetTopicsAndComments(APIView):
+    permission_classes = [AllowAny]
+    def get(self,request,format=None):
+        
+        
+        
+        # query = request.data.query
+        # query = self.request.GET.get('query')
+        query = request.query_params.get("query")
+        print(query)
+        topics = TopicSerializer(Topic.objects.all(),many=True).data
+        comments = CommentSerializer(Comment.objects.all(),many=True).data
+        mixed_total = topics+comments
+        
+        filtered_query_list = [obj for obj in mixed_total if query in obj["content"]]
+        return Response(filtered_query_list,status=status.HTTP_200_OK)
+        # except EmptyResultSet:
+        
 
 
     

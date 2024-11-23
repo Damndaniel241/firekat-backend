@@ -20,10 +20,21 @@ class CommentLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommentLike
         fields = '__all__'
+        
+class SecondTopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Topic
+        fields = '__all__'
+        
+class SecondCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Comment
+        fields = '__all__'
 
 class CommentSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
     comment_like_count = serializers.SerializerMethodField() 
+    topic = SecondTopicSerializer(read_only=True)
     # quoted_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all)
 
 
@@ -45,6 +56,7 @@ class CommentSerializer(serializers.ModelSerializer):
         queryset = obj.comment_likes.filter(liked=True)
         user_liked_list_count = len(list(queryset))
         return user_liked_list_count
+
 
 
 
