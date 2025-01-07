@@ -294,11 +294,15 @@ class GetTopicsAndComments(APIView):
         # query = self.request.GET.get('query')
         query = request.query_params.get("query")
         print(query)
+        
+        if not query:  # Handle case where query is missing
+            return Response({"error": "Query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
         topics = TopicSerializer(Topic.objects.all(),many=True).data
         comments = CommentSerializer(Comment.objects.all(),many=True).data
         mixed_total = topics+comments
         
-        filtered_query_list = [obj for obj in mixed_total if query in obj["content"]]
+        filtered_query_list = [obj for obj in mixed_total if query.lower() in obj["content"].lower()]
         return Response(filtered_query_list,status=status.HTTP_200_OK)
         # except EmptyResultSet:
         

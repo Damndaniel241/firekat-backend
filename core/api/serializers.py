@@ -110,6 +110,11 @@ class FacultySerializer(serializers.ModelSerializer):
 
 class SubjectSerializer(serializers.ModelSerializer):
     faculty = FacultySerializer(read_only=True)
+    topics_count = serializers.SerializerMethodField()
     class Meta:
         model = Subject
         fields = '__all__'
+        
+    
+    def get_topics_count(self,obj):
+        return obj.subject_topics.count()
